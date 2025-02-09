@@ -1,0 +1,34 @@
+service: lambda-s3-upload
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  environment:
+    BUCKET_NAME: file-upload-api-storage-22  # Set your S3 bucket name here
+
+  # Add IAM role statement to allow Lambda to upload to S3
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+        - s3:PutObjectAcl
+      Resource:
+        - arn:aws:s3:::file-upload-api-storage-22/*  # Allow PutObject on all objects in the specified bucket
+
+functions:
+  uploadFile:
+    handler: handler.uploadFile
+    events:
+      - http:
+          path: upload
+          method: post
+          cors: true
+
+resources:
+  Resources:
+    S3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: file-upload-api-storage-22
